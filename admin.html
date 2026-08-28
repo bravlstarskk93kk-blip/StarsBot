@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WEX STARS — Админ-панель</title>
+<link rel="stylesheet" href="style.css" />
+<style>
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .brand{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--gold-bright); }
+  .brand span{ color:var(--muted); font-weight:400; font-size:12px; margin-left:8px; font-family:var(--font-mono); }
+  .wrap{ max-width:900px; margin:0 auto; padding:32px 24px 80px; }
+  .section-title{ font-family:var(--font-display); font-size:22px; font-weight:500; margin:0 0 6px; }
+  .section-sub{ color:var(--muted); font-size:14px; margin:0 0 24px; }
+
+  table{ width:100%; border-collapse:collapse; }
+  th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--muted); padding:0 14px 10px; font-weight:500;
+  }
+  td{ padding:14px; font-size:14px; border-top:1px solid var(--hairline); vertical-align:middle; }
+  tr:hover td{ background:rgba(255,255,255,0.02); }
+  .amt{ font-family:var(--font-mono); color:var(--gold-bright); font-weight:700; }
+  .status-pill{ font-size:11px; padding:4px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:0.05em; }
+  .status-pending{ background:rgba(242,179,61,0.15); color:var(--gold); }
+  .status-confirmed{ background:rgba(87,199,133,0.15); color:var(--ok); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">WEX STARS <span>админ-панель</span></div>
+  <button class="btn btn-ghost btn-sm" onclick="window.location.href='dashboard.html'">← В кабинет</button>
+</div>
+
+<div class="wrap">
+  <h1 class="section-title">Заказы на вывод</h1>
+  <p class="section-sub">Подтверждайте заявки после отправки звёзд получателю.</p>
+
+  <div class="card" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>От</th>
+          <th>Кому</th>
+          <th>Сумма</th>
+          <th>Подарок</th>
+          <th>Сообщение</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="ordersBody">
+        <tr><td colspan="8" class="hint-text">Загрузка…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
