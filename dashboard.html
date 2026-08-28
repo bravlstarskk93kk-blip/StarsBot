@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WEX STARS — Кабинет</title>
+<link rel="stylesheet" href="style.css" />
+<style>
+  body{ background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(242,179,61,0.08), transparent 60%),
+    var(--bg);
+  }
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:rgba(10,13,28,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--hairline);
+  }
+  .brand{ font-family:var(--font-display); font-weight:600; font-size:20px; color:var(--gold-bright); }
+  .brand span{ color:var(--muted); font-weight:400; font-size:12px; margin-left:8px; font-family:var(--font-mono); }
+  .nav-actions{ display:flex; gap:10px; align-items:center; }
+  #adminLink{ display:none; }
+
+  .layout{
+    display:flex;
+    align-items:flex-start;
+    gap:28px;
+    max-width:1100px;
+    margin:0 auto;
+    padding:32px 24px 100px;
+  }
+  .balance-rail{
+    position:sticky;
+    top:88px;
+    width:220px;
+    flex:none;
+    padding:22px;
+    text-align:center;
+  }
+  .balance-rail .label{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .balance-rail .amount{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:40px;
+    color:var(--gold-bright);
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .balance-rail .username{ margin-top:14px; font-size:13px; color:var(--muted); word-break:break-all; }
+
+  .main-col{ flex:1; min-width:0; }
+  .section-title{ font-family:var(--font-display); font-size:22px; font-weight:500; margin:0 0 6px; }
+  .section-sub{ color:var(--muted); font-size:14px; margin:0 0 20px; }
+
+  .tasks-empty{
+    padding:40px 24px;
+    text-align:center;
+    color:var(--muted);
+  }
+  .tasks-empty .glyph{ font-size:28px; margin-bottom:10px; }
+
+  .bottom-promo{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 24px 60px;
+    text-align:center;
+  }
+
+  /* withdraw modal internals */
+  .amount-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .amount-opt{
+    padding:16px 8px;
+    border-radius:var(--radius-sm);
+    border:1px solid var(--hairline-strong);
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:18px;
+    text-align:center;
+    transition:border-color .15s, background .15s;
+  }
+  .amount-opt:hover{ border-color:var(--gold); }
+  .amount-opt.selected{ border-color:var(--gold); background:var(--gold-dim); color:var(--gold-bright); }
+
+  .gift-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .gift-opt{
+    padding:16px 8px;
+    border-radius:var(--radius-sm);
+    border:1px solid var(--hairline-strong);
+    text-align:center;
+    font-size:14px;
+    transition:border-color .15s, background .15s;
+  }
+  .gift-opt .glyph{ font-size:26px; display:block; margin-bottom:6px; }
+  .gift-opt.selected{ border-color:var(--gold); background:var(--gold-dim); color:var(--gold-bright); }
+
+  .withdraw-step-label{ font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+
+  /* withdrawals history list */
+  .history-list{ display:flex; flex-direction:column; gap:10px; }
+  .history-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px;
+    border-radius:var(--radius-sm);
+    background:var(--bg-raised-2);
+    font-size:14px;
+  }
+  .history-row .amt{ font-family:var(--font-mono); color:var(--gold-bright); font-weight:700; }
+  .status-pill{
+    font-size:11px; padding:4px 10px; border-radius:999px;
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .status-pending{ background:rgba(242,179,61,0.15); color:var(--gold); }
+  .status-confirmed{ background:rgba(87,199,133,0.15); color:var(--ok); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">WEX STARS <span>кабинет</span></div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost btn-sm" id="adminLink">Админ-панель</button>
+    <button class="btn btn-ghost btn-sm" id="openHistory">Выводы</button>
+    <button class="btn btn-gold btn-sm" id="openWithdraw">Вывести</button>
+    <button class="btn btn-ghost btn-sm" id="openPromoTop">Промокоды</button>
+    <button class="btn btn-ghost btn-sm" id="logoutBtn">Выйти</button>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="card balance-rail">
+    <div class="label">Баланс</div>
+    <div class="amount">★ <span id="balanceValue">—</span></div>
+    <div class="username" id="usernameValue"></div>
+  </aside>
+
+  <main class="main-col">
+    <h1 class="section-title">Задания</h1>
+    <p class="section-sub">Выполняй задания и получай звёзды на баланс.</p>
+    <div class="card tasks-empty">
+      <div class="glyph">✶</div>
+      Задания скоро появятся — загляните позже.
+    </div>
+  </main>
+</div>
+
+<div class="bottom-promo">
+  <button class="btn btn-ghost" id="openPromoBottom">🎟 Промокоды</button>
+</div>
+
+<!-- ===================== WITHDRAW MODAL ===================== -->
+<div class="modal-veil" id="withdrawVeil" hidden>
+  <div class="card modal" style="max-width:420px;">
+    <button class="modal-close" data-close="withdrawVeil">✕</button>
+
+    <div id="wStep1">
+      <h2>Вывести звёзды</h2>
+      <p class="sub">Выберите сумму</p>
+      <div class="amount-grid">
+        <button class="amount-opt" data-amount="15">★ 15</button>
+        <button class="amount-opt" data-amount="25">★ 25</button>
+        <button class="amount-opt" data-amount="50">★ 50</button>
+      </div>
+      <p class="error-text" id="wAmountError"></p>
+      <button class="btn btn-gold" id="wStep1Next" style="width:100%; margin-top:16px;">Далее</button>
+    </div>
+
+    <div id="wStep2" hidden>
+      <h2>Подарок</h2>
+      <p class="sub">Что отправить вместе со звёздами?</p>
+      <div class="gift-grid">
+        <button class="gift-opt" data-gift="mishka"><span class="glyph">🧸</span>Мишка</button>
+        <button class="gift-opt" data-gift="serdce"><span class="glyph">❤️</span>Сердце</button>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label for="wMessage">Сообщение</label>
+        <input type="text" id="wMessage" maxlength="120" placeholder="Необязательно" style="font-family:var(--font-body);" />
+      </div>
+      <p class="error-text" id="wGiftError"></p>
+      <button class="btn btn-gold" id="wStep2Next" style="width:100%; margin-top:16px;">Далее</button>
+    </div>
+
+    <div id="wStep3" hidden>
+      <h2>Кому отправить</h2>
+      <p class="sub">Юзернейм получателя на WEX STARS</p>
+      <form id="wFinalForm">
+        <div class="field">
+          <label for="wTarget">Юзернейм</label>
+          <input type="text" id="wTarget" required placeholder="star_hunter" style="font-family:var(--font-body);" />
+        </div>
+        <p class="error-text" id="wFinalError"></p>
+        <button class="btn btn-gold" type="submit" style="width:100%; margin-top:6px;">Подтвердить</button>
+      </form>
+    </div>
+
+    <div id="wStep4" hidden style="text-align:center;">
+      <div style="font-size:34px; margin-bottom:10px;">✅</div>
+      <h2>Заявка отправлена</h2>
+      <p class="sub">Ждите подтверждения — она появится во «Выводах».</p>
+      <button class="btn btn-ghost" data-close="withdrawVeil" style="width:100%;">Готово</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HISTORY MODAL ===================== -->
+<div class="modal-veil" id="historyVeil" hidden>
+  <div class="card modal" style="max-width:440px;">
+    <button class="modal-close" data-close="historyVeil">✕</button>
+    <h2>Мои выводы</h2>
+    <p class="sub">История заявок на вывод звёзд</p>
+    <div class="history-list" id="historyList">
+      <p class="hint-text">Загрузка…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PROMO MODAL ===================== -->
+<div class="modal-veil" id="promoVeil" hidden>
+  <div class="card modal">
+    <button class="modal-close" data-close="promoVeil">✕</button>
+    <h2>Промокод</h2>
+    <p class="sub">Введите код, чтобы получить бонус</p>
+    <form id="promoForm">
+      <div class="field">
+        <label for="promoInput">Код</label>
+        <input type="text" id="promoInput" required style="text-transform:uppercase;" />
+      </div>
+      <p class="error-text" id="promoError"></p>
+      <p class="hint-text" id="promoSuccess"></p>
+      <button class="btn btn-gold" type="submit" style="width:100%;">Применить</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
